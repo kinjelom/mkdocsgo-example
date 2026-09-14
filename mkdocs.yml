@@ -1,0 +1,131 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - MkDocs configuration
+#
+# An ordinary MkDocs project. mkdocsgo does not change how a site is built:
+# same mkdocs.yml, same theme, same extensions, same `mkdocs build`.
+#
+# What it does read from this file: site_name, docs_dir, exclude_docs and nav.
+# The navigation becomes the breadcrumb an agent sees beside every search hit,
+# which is a reason to keep nav meaningful rather than flat.
+#
+# Docs: https://www.mkdocs.org/ | https://squidfunk.github.io/mkdocs-material/
+# ---------------------------------------------------------------------------
+
+site_name: mkdocsgo example
+site_description: An example MkDocs project served by mkdocsgo - one Go binary serving the site and an MCP endpoint for agents.
+site_url: https://mkdocsgo-example.apps.example.com/
+copyright: Copyright (c) 2026 kinjelom - MIT Licence
+
+repo_url: https://github.com/kinjelom/mkdocsgo-example
+repo_name: kinjelom/mkdocsgo-example
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: en
+  icon:
+    logo: material/book-open-variant
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Follow system theme
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tooltips
+
+extra:
+  # The version of this documentation, and the only place it is written. The
+  # image tag, the OCI version label and the Cloud Foundry manifest variable
+  # are all this number, read from here by scripts/lib.sh - a published image
+  # and the pages inside it can then never claim different versions.
+  app_version: 0.1.0
+
+plugins:
+  search:
+    lang: en
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  # base_path is the repository root, so a page can include the real
+  # deployment manifests instead of restating them. A copied manifest in a
+  # page drifts from the one that is deployed; an included one cannot.
+  #
+  # Worth knowing: mkdocsgo indexes the Markdown source, so the MCP half sees
+  # the `--8<--` line literally and not the file it pulls in. The published
+  # site is unaffected - MkDocs expanded it at build time.
+  - pymdownx.snippets:
+      base_path:
+        - .
+      check_paths: true
+
+# `mkdocs build --strict` turns every warning below into a build failure: a
+# broken internal link, a page missing from the navigation, a snippet that does
+# not resolve. A broken site cannot be published by accident.
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Using mkdocsgo:
+      - How to depend on it: guides/depending-on-mkdocsgo.md
+      - Writing for humans and agents: guides/writing-for-agents.md
+  - Deployment:
+      - Docker: deployment/docker.md
+      - Cloud Foundry: deployment/cloud-foundry.md
+      - Kubernetes: deployment/kubernetes.md
+  - Reference:
+      - Command line: reference/cli.md
+      - Project layout: reference/project-layout.md

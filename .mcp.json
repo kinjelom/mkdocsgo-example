@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "example-docs": {
+      "command": "scripts/mcp.sh"
+    }
+  }
+}

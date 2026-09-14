@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - Ingress
+#
+# TLS terminates here. mkdocsgo speaks plain HTTP and has no certificate
+# handling: in every platform it runs on, something in front already terminates
+# TLS - the Cloud Foundry router, this Ingress, a reverse proxy - and doing it
+# twice buys nothing.
+#
+# Both halves are one service on one port, so `/` covers the site, /mcp and
+# /healthz alike. Split them only if you want an authentication policy on /mcp
+# that the site does not have.
+#
+# Adjust ingressClassName, the host and the issuer to your cluster.
+# ---------------------------------------------------------------------------
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mkdocsgo-example
+  labels:
+    app.kubernetes.io/name: mkdocsgo-example
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - docs.example.com
+      secretName: mkdocsgo-example-tls
+  rules:
+    - host: docs.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mkdocsgo-example
+                port:
+                  name: http

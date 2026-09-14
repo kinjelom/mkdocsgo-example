@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - Cloud Foundry manifest: binary buildpack
+#
+# No registry needed. The binary buildpack compiles nothing: it takes the
+# directory named by `path`, runs `command`, and that is all - so the directory
+# must arrive complete. scripts/package-cf.sh assembles it:
+#
+#   dist/cf/
+#   |-- mkdocsgo      the pinned release binary, linux/amd64, executable
+#   |-- mkdocs.yml
+#   |-- docs/         Markdown sources - what the MCP index is built from
+#   \-- site/         the built site - what browsers get
+#
+# Deployed by scripts/deploy-cf.sh --buildpack, which assembles that directory
+# first:
+#
+#   scripts/deploy-cf.sh --buildpack
+#
+# Why binary_buildpack and not go_buildpack: the Go buildpack would compile
+# from source on the foundation - the toolchain, the module cache and network
+# access to a proxy during staging - to produce a binary a release already
+# published, reproducibly, with a checksum.
+#
+# Why not staticfile_buildpack: it serves site/ through nginx and nothing else.
+# No /mcp, no /healthz, and a per-application nginx configuration to maintain.
+# That is precisely what mkdocsgo replaces.
+#
+# The org and space are deliberately absent. Cloud Foundry takes them from the
+# session, so a deployment cannot land wherever a console last pointed.
+# ---------------------------------------------------------------------------
+
+applications:
+  - name: mkdocsgo-example
+
+    # The assembled directory, not the repository root: relative to this file.
+    # Pushing the repository would upload the scripts, the manifests and the
+    # git history, and would still be missing the binary.
+    path: ../../dist/cf
+
+    buildpacks:
+      - binary_buildpack
+    stack: cflinuxfs4
+
+    # No -http flag: the server reads $PORT, which Cloud Foundry assigns per
+    # instance. Nothing has to expand a variable at start-up and no port is
+    # hard-coded. `.` is the app directory, which is the project itself.
+    command: ./mkdocsgo -mode site+mcp -project .
+
+    instances: 2
+
+    memory: 128M
+    disk_quota: 512M
+
+    health-check-type: http
+    health-check-http-endpoint: /healthz
+    health-check-invocation-timeout: 5
+
+    routes:
+      - route: mkdocsgo-example.apps.example.com

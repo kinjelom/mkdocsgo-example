@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - Service
+#
+# No session affinity: the MCP endpoint is stateless - no Mcp-Session-Id - so
+# any replica answers any request, and pinning a client to one would only make
+# a rollout worse.
+# ---------------------------------------------------------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mkdocsgo-example
+  labels:
+    app.kubernetes.io/name: mkdocsgo-example
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: mkdocsgo-example
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

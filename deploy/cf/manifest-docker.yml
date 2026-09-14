@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - Cloud Foundry manifest: Docker application
+#
+# Cloud Foundry pulls the published image from the registry and runs it. The
+# push builds nothing: what reaches the foundation is the exact image that was
+# built, tested and published.
+#
+# Deployed by scripts/deploy-cf.sh --docker, which supplies `docker_image` and
+# targets the org and space explicitly.
+#
+#   scripts/deploy-cf.sh --docker
+#
+# The image reference is the one placeholder in this file, because the version
+# must have exactly one home: extra.app_version in mkdocs.yml. A hand-run
+# `cf push -f deploy/cf/manifest-docker.yml` therefore fails on the missing
+# variable - which is far better than deploying a stale version, or, with no
+# image at all, uploading this repository as application source.
+#
+# The org and space are deliberately absent. Cloud Foundry takes them from the
+# session, so a deployment cannot land wherever a console last pointed.
+# ---------------------------------------------------------------------------
+
+applications:
+  - name: mkdocsgo-example
+
+    docker:
+      image: ((docker_image))
+
+    # Two instances so a rolling deployment never leaves the documentation
+    # unserved. ETags are content hashes, so both instances agree on them and
+    # a reader routed to the other one does not re-download the site.
+    instances: 2
+
+    # One Go process holding the gzipped site in memory - 1.6 MB for a 6.9 MB
+    # site - plus the section index and the Go runtime. 64M is enough for a
+    # small site; check with `cf app mkdocsgo-example` before trimming.
+    memory: 128M
+    disk_quota: 512M
+
+    # The image's own liveness endpoint, not a bare port check: a container
+    # whose server started but could not read the site is then reported
+    # unhealthy instead of healthy.
+    health-check-type: http
+    health-check-http-endpoint: /healthz
+    health-check-invocation-timeout: 5
+
+    routes:
+      - route: mkdocsgo-example.apps.example.com
+
+    env:
+      # The server reads DOC_PORT first, then PORT. Setting it pins the
+      # listener to the port the image exposes. Must match CONTAINER_PORT in
+      # project.conf and the EXPOSE line in the Dockerfile.
+      DOC_PORT: 8080

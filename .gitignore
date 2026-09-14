@@ -1,0 +1,15 @@
+# Built site - produced by scripts/test.sh, never committed.
+/site/
+
+# Assembled Cloud Foundry droplet contents: the pinned mkdocsgo binary, the
+# built site and the Markdown sources. Produced by scripts/package-cf.sh.
+/dist/
+
+# Credentials. Never committed - see project.conf.
+.env
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store

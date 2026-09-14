@@ -1,0 +1,108 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - Kubernetes Deployment
+#
+# A stateless, read-only process: no volumes, no secrets, no writes, nothing to
+# coordinate between replicas. Everything is read once at start-up, which is
+# what lets the root filesystem be read-only and the probes be immediate.
+#
+#   kubectl apply -f deploy/k8s/
+#
+# Change the image tag to the version you published. `:latest` here would mean
+# a rollout does something different every time it happens.
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mkdocsgo-example
+  labels:
+    app.kubernetes.io/name: mkdocsgo-example
+    app.kubernetes.io/component: documentation
+spec:
+  # Two replicas so a rollout never leaves the documentation unserved. ETags
+  # are content hashes rather than inode-derived, so both replicas agree on
+  # them and a reader routed to the other one does not re-download the site.
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mkdocsgo-example
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mkdocsgo-example
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        # The uid the distroless "nonroot" variant ships with.
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: docs
+          image: ghcr.io/kinjelom/mkdocsgo-example:0.1.0
+          imagePullPolicy: IfNotPresent
+
+          # Replaces the image's CMD, not its ENTRYPOINT: the entrypoint stays
+          # the binary and these are its flags.
+          args:
+            - -mode
+            - site+mcp
+            - -project
+            - /project
+            - -http
+            - 0.0.0.0:8080
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            # The process opens no file for writing and needs no scratch
+            # space, so this costs nothing and closes a whole class of
+            # container escapes.
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+
+          # /healthz, not /: a 200 from the root proves nothing extra and is a
+          # large response to fetch every few seconds.
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 15
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
