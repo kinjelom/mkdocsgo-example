@@ -113,7 +113,7 @@ manifest variable are all read from there:
 
 ```yaml title="mkdocs.yml"
 extra:
-  app_version: 0.2.0
+  app_version: 0.2.1
 ```
 
 One number, in the file the pages are built from, so a published image cannot

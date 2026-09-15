@@ -63,7 +63,7 @@ image has no shell to give it.
 ## Running it
 
 ```bash
-docker run --rm -p 8000:8080 -e DOC_PORT=8080 ghcr.io/kinjelom/mkdocsgo-example:0.2.0
+docker run --rm -p 8000:8080 -e DOC_PORT=8080 ghcr.io/kinjelom/mkdocsgo-example:0.2.1
 ```
 
 | | |
@@ -75,7 +75,7 @@ docker run --rm -p 8000:8080 -e DOC_PORT=8080 ghcr.io/kinjelom/mkdocsgo-example:
 To serve only one half, override the command:
 
 ```bash
-docker run --rm -p 8000:8080 ghcr.io/kinjelom/mkdocsgo-example:0.2.0 \
+docker run --rm -p 8000:8080 ghcr.io/kinjelom/mkdocsgo-example:0.2.1 \
   -mode site -project /project -http 0.0.0.0:8080
 ```
 
