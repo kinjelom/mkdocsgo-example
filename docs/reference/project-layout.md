@@ -96,7 +96,7 @@ One file, two questions.
 
 ```ini
 # 1. WHICH mkdocsgo does this documentation run on?
-MKDOCSGO_VERSION=0.2.0
+MKDOCSGO_VERSION=0.3.0
 MKDOCSGO_REPO=kinjelom/mkdocsgo
 MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo
 
@@ -113,7 +113,7 @@ manifest variable are all read from there:
 
 ```yaml title="mkdocs.yml"
 extra:
-  app_version: 0.2.1
+  app_version: 0.2.2
 ```
 
 One number, in the file the pages are built from, so a published image cannot

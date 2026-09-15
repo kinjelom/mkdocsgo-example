@@ -49,7 +49,7 @@ spec:
 
       containers:
         - name: docs
-          image: ghcr.io/kinjelom/mkdocsgo-example:0.2.1
+          image: ghcr.io/kinjelom/mkdocsgo-example:0.2.2
           imagePullPolicy: IfNotPresent
 
           # Replaces the image's CMD, not its ENTRYPOINT: the entrypoint stays

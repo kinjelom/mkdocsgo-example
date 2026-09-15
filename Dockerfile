@@ -22,7 +22,7 @@
 # The same toolbox the scripts use, so the site in this image and the site in
 # dist/cf are built by one toolchain rather than two that can drift.
 ARG TOOLBOX_IMAGE=ghcr.io/kinjelom/mkdocs-build-toolbox:0.3.0
-ARG MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo:0.2.0
+ARG MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo:0.3.0
 ARG RUNTIME_IMAGE=gcr.io/distroless/static-debian12:nonroot
 
 # --- 1. Build the site ------------------------------------------------------

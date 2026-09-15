@@ -40,7 +40,7 @@ installed: [docs/getting-started.md](docs/getting-started.md).
 On a released version, pinned in one line of `project.conf`:
 
 ```ini
-MKDOCSGO_VERSION=0.2.0
+MKDOCSGO_VERSION=0.3.0
 ```
 
 `scripts/docs.sh package-cf` downloads that release and verifies its SHA-256 before
