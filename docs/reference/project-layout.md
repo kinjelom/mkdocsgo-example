@@ -8,12 +8,14 @@ for.
 ```
 /project
 |-- mkdocs.yml      site_name, docs_dir, exclude_docs, nav
+|-- mkdocsgo.yml    zones: which address gets which policy  (optional)
 |-- docs/           every .md - the MCP index
 \-- site/           the built site - what browsers get
 ```
 
-Three things, and only three. There is no configuration file of its own, no
-database and no cache directory.
+Four things at most, and the fourth is optional: without `mkdocsgo.yml` every
+address is public and the server has no configuration of its own. There is no
+database and no cache directory either way.
 
 | From `mkdocs.yml` | Used for |
 |---|---|
@@ -21,6 +23,10 @@ database and no cache directory.
 | `docs_dir` | Where to find the Markdown |
 | `exclude_docs` | What not to index |
 | `nav` | The breadcrumb shown beside every search hit |
+
+`mkdocsgo.yml` is the server's own, and the only file here MkDocs never looks
+at: addresses, zones, and the credential hashes a restricted zone checks
+against. See [Restricting access by address](../guides/restricting-access.md).
 
 Everything else in `mkdocs.yml` - theme, plugins, extensions - is MkDocs'
 business and is ignored. `mkdocs.yml` is decoded as a YAML node tree rather than
@@ -55,6 +61,7 @@ not alternatives.
 mkdocsgo-example/
 |-- project.conf            which mkdocsgo, which toolbox, what this publishes
 |-- mkdocs.yml              site config, nav, validation rules, the version
+|-- mkdocsgo.yml            zones: which address is public, which asks for credentials
 |-- Dockerfile              three stages; Python never reaches the third
 |-- docs/                   the documentation content
 |-- deploy/
@@ -89,7 +96,7 @@ One file, two questions.
 
 ```ini
 # 1. WHICH mkdocsgo does this documentation run on?
-MKDOCSGO_VERSION=0.1.1
+MKDOCSGO_VERSION=0.2.0
 MKDOCSGO_REPO=kinjelom/mkdocsgo
 MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo
 
@@ -106,7 +113,7 @@ manifest variable are all read from there:
 
 ```yaml title="mkdocs.yml"
 extra:
-  app_version: 0.1.0
+  app_version: 0.2.0
 ```
 
 One number, in the file the pages are built from, so a published image cannot
@@ -138,5 +145,6 @@ than at build time:
 | `CONTAINER_PORT` | `DOC_PORT` in `manifest-docker.yml` | every request 502s |
 | `CONTAINER_PORT` | `containerPort` in `deployment.yaml` | the probes fail |
 | `MKDOCSGO_VERSION` | what `dist/cf/.version` records | the checks fail until you re-package |
+| Every route in `deploy/` | a host in `mkdocsgo.yml` | that address answers 403, because an unclaimed one is refused |
 | `extra.app_version` in `mkdocs.yml` | nothing - it is the only copy | (that is the point) |
 | Every page | an entry in `nav:` | `--strict` fails the build, by design |

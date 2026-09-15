@@ -1,0 +1,73 @@
+# ---------------------------------------------------------------------------
+# mkdocsgo-example - zones
+#
+# Which addresses this documentation answers on, and what each one asks for.
+# Read by mkdocsgo at startup, from beside mkdocs.yml. Delete this file and
+# every address is public again - that is the default and nothing else changes.
+#
+# A zone is a POLICY FOR AN ADDRESS, not a filter over content. Every zone here
+# serves the same pages; the restricted one only asks who you are. Pages that
+# must genuinely differ belong in a separate build and a separate deployment.
+#
+# An address no zone claims gets 403. So every route in deploy/cf/manifest-*.yml
+# and every host in deploy/k8s/ingress.yaml must appear below, and a route
+# added to one of those without a line here answers nothing.
+#
+# NOTHING IN THIS FILE IS A SECRET. A password is an Argon2id hash and a token
+# is a SHA-256 digest; the secrets behind them were printed once and are not
+# here. That is why there is no encrypted variant to manage.
+#
+#   mkdocsgo -new-token       mint a token and print the lines to paste
+#   mkdocsgo -hash-password   hash a password the same way
+#
+# Format and every key: https://github.com/kinjelom/mkdocsgo/blob/main/AUTH.md
+# ---------------------------------------------------------------------------
+
+version: 1
+
+zones:
+
+  # Everything reachable only from inside, plus the loopback addresses, so
+  # `scripts/run.sh` serves the way it always did. Adding 127.0.0.1 explicitly
+  # matters: a zone file makes every unclaimed address a 403, and that includes
+  # the one a local `curl` and `-mcp-probe` arrive at.
+  intranet:
+    hosts:
+      - localhost
+      - 127.0.0.1
+      - mkdocsgo-example.apps.internal
+    access: public
+
+  # The addresses that face outwards. Both surfaces ask for credentials: a
+  # browser for a password, an agent for a bearer token.
+  internet:
+    hosts:
+      - mkdocsgo-example.apps.example.com
+      - docs.example.com
+    access: restricted
+    realm: "mkdocsgo example (demonstration credentials)"
+    principals: [demo, demo-agent]
+
+principals:
+
+  # ---------------------------------------------------------------------
+  # THESE CREDENTIALS ARE PUBLISHED. They exist so this repository can be
+  # read and run as an example, and the addresses above are reserved
+  # documentation domains nobody can deploy to. Before this becomes a real
+  # deployment, replace both lines with your own:
+  #
+  #     mkdocsgo -hash-password
+  #     mkdocsgo -new-token
+  #
+  # The password below is "demo"; the token is in docs/guides/restricting-access.md.
+  # ---------------------------------------------------------------------
+
+  demo:
+    display: "Demonstration reader"
+    password: "$argon2id$v=19$m=19456,t=2,p=1$9MwoFUA3JzLdPmjlLnAkRg$fmtaUs/tR55NlyIkIzMs1jzfX/+L8ArnJTwmgWm+Vio"
+
+  demo-agent:
+    display: "Demonstration agent"
+    tokens:
+      - id: 2026-09
+        hash: "sha256:0ff98965be4cd894bb2f9fccfd152adc02c5fbcdf4fe96d77583d683922764fc"

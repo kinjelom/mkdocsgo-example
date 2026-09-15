@@ -21,6 +21,7 @@ Python builds the site. Python is not in the result.
 |---|---|
 | How to depend on mkdocsgo without vendoring it | [How to depend on it](guides/depending-on-mkdocsgo.md) |
 | Writing pages that both a reader and an agent can use | [Writing for humans and agents](guides/writing-for-agents.md) |
+| One documentation set, an intranet address and an internet one | [Restricting access by address](guides/restricting-access.md) |
 | The three-stage image, and what does not reach the last stage | [Docker](deployment/docker.md) |
 | Two ways onto Cloud Foundry, with both manifests | [Cloud Foundry](deployment/cloud-foundry.md) |
 | A Deployment, a Service and an Ingress | [Kubernetes](deployment/kubernetes.md) |

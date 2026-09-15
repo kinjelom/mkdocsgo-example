@@ -49,7 +49,7 @@ spec:
 
       containers:
         - name: docs
-          image: ghcr.io/kinjelom/mkdocsgo-example:0.1.0
+          image: ghcr.io/kinjelom/mkdocsgo-example:0.2.0
           imagePullPolicy: IfNotPresent
 
           # Replaces the image's CMD, not its ENTRYPOINT: the entrypoint stays
@@ -76,16 +76,21 @@ spec:
             capabilities:
               drop: ["ALL"]
 
+          # The limit carries the gzipped site, the section index and the Go
+          # runtime, plus the restricted zone's Argon2id verifications - 19 MiB
+          # each, two at a time. 128Mi is enough where every zone is public.
           resources:
             requests:
               cpu: 10m
               memory: 64Mi
             limits:
               cpu: 500m
-              memory: 128Mi
+              memory: 192Mi
 
-          # /healthz, not /: a 200 from the root proves nothing extra and is a
-          # large response to fetch every few seconds.
+          # /healthz, not /: a 200 from the root proves nothing extra, is a
+          # large response to fetch every few seconds, and - since the kubelet
+          # probes the pod IP, which no zone claims - would be refused in a
+          # deployment with zones. /healthz is outside them for that reason.
           startupProbe:
             httpGet:
               path: /healthz

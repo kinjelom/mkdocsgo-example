@@ -7,8 +7,12 @@
 # twice buys nothing.
 #
 # Both halves are one service on one port, so `/` covers the site, /mcp and
-# /healthz alike. Split them only if you want an authentication policy on /mcp
-# that the site does not have.
+# /healthz alike.
+#
+# The host below must appear in `hosts:` in mkdocsgo.yml - an address no zone
+# claims is answered with 403 rather than served. Here it belongs to the
+# restricted zone, so both halves ask for credentials: a browser for a
+# password, an agent for a bearer token.
 #
 # Adjust ingressClassName, the host and the issuer to your cluster.
 # ---------------------------------------------------------------------------

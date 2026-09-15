@@ -34,7 +34,11 @@ applications:
     # One Go process holding the gzipped site in memory - 1.6 MB for a 6.9 MB
     # site - plus the section index and the Go runtime. 64M is enough for a
     # small site; check with `cf app mkdocsgo-example` before trimming.
-    memory: 128M
+    #
+    # The extra headroom over that is for the restricted zone in mkdocsgo.yml:
+    # verifying an Argon2id password costs 19 MiB, two verifications at a time.
+    # Drop back to 128M for a deployment where every zone is public.
+    memory: 192M
     disk_quota: 512M
 
     # The image's own liveness endpoint, not a bare port check: a container
@@ -44,6 +48,9 @@ applications:
     health-check-http-endpoint: /healthz
     health-check-invocation-timeout: 5
 
+    # Every route here needs a matching entry in `hosts:` in mkdocsgo.yml, or
+    # the server answers 403 on it: an address no zone claims is refused rather
+    # than served. See docs/guides/restricting-access.md.
     routes:
       - route: mkdocsgo-example.apps.example.com
 

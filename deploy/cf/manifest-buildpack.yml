@@ -8,6 +8,7 @@
 #   dist/cf/
 #   |-- mkdocsgo      the pinned release binary, linux/amd64, executable
 #   |-- mkdocs.yml
+#   |-- mkdocsgo.yml  zones - which address is public, which asks for credentials
 #   |-- docs/         Markdown sources - what the MCP index is built from
 #   \-- site/         the built site - what browsers get
 #
@@ -48,12 +49,17 @@ applications:
 
     instances: 2
 
-    memory: 128M
+    # 128M is enough while every zone is public. The headroom above it is for
+    # the restricted zone in mkdocsgo.yml: an Argon2id verification costs
+    # 19 MiB, two at a time.
+    memory: 192M
     disk_quota: 512M
 
     health-check-type: http
     health-check-http-endpoint: /healthz
     health-check-invocation-timeout: 5
 
+    # Every route here needs a matching entry in `hosts:` in mkdocsgo.yml, or
+    # the server answers 403 on it. See docs/guides/restricting-access.md.
     routes:
       - route: mkdocsgo-example.apps.example.com

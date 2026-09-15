@@ -22,7 +22,7 @@
 # The same toolbox the scripts use, so the site in this image and the site in
 # dist/cf are built by one toolchain rather than two that can drift.
 ARG TOOLBOX_IMAGE=ghcr.io/kinjelom/mkdocs-build-toolbox:0.2.0
-ARG MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo:0.1.1
+ARG MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo:0.2.0
 ARG RUNTIME_IMAGE=gcr.io/distroless/static-debian12:nonroot
 
 # --- 1. Build the site ------------------------------------------------------
@@ -34,6 +34,10 @@ WORKDIR /build
 
 COPY mkdocs.yml ./
 COPY docs/ ./docs/
+
+# Included into a page with `--8<--`, so the zone configuration a reader sees
+# is the one the server reads. --strict fails the build if it goes missing.
+COPY mkdocsgo.yml ./
 
 # Included into pages with `--8<--` rather than copied into them, so a
 # documented manifest cannot drift from the deployed one. `--strict` fails the
@@ -63,6 +67,12 @@ COPY --from=server /mkdocsgo          /mkdocsgo
 COPY --from=site   /site              /project/site
 COPY mkdocs.yml                       /project/mkdocs.yml
 COPY docs/                            /project/docs/
+
+# Which address gets which policy. It holds hashes and no secrets, so it
+# travels in the image like any other configuration; without it every address
+# is public. Reading it at startup is what makes the policy identical here and
+# on Cloud Foundry.
+COPY mkdocsgo.yml                     /project/mkdocsgo.yml
 
 EXPOSE 8080
 

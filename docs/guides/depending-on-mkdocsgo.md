@@ -8,7 +8,7 @@ The release comes in two forms, and both are the same decision:
 
 - the **release binary**, pinned by version and verified by checksum, for
   local runs and for the Cloud Foundry binary buildpack;
-- the **release image** as a build stage, `COPY --from=ghcr.io/kinjelom/mkdocsgo:0.1.1`,
+- the **release image** as a build stage, `COPY --from=ghcr.io/kinjelom/mkdocsgo:0.2.0`,
   for the container image.
 
 | | Release binary | Release image |
@@ -28,7 +28,7 @@ They are not two dependencies. Packaging and the `Dockerfile` both read
 cannot disagree:
 
 ```ini title="project.conf"
-MKDOCSGO_VERSION=0.1.1
+MKDOCSGO_VERSION=0.2.0
 MKDOCSGO_REPO=kinjelom/mkdocsgo
 MKDOCSGO_IMAGE=ghcr.io/kinjelom/mkdocsgo
 ```
@@ -60,7 +60,7 @@ layer is cached and shared between projects.
 on every test run:
 
 ```
-FAIL dist/cf holds mkdocsgo '0.1.0' but project.conf pins '0.1.1'
+FAIL dist/cf holds mkdocsgo '0.1.1' but project.conf pins '0.2.0'
      - re-run scripts/docs.sh package-cf
 ```
 
@@ -71,7 +71,7 @@ cannot quietly outlive it.
 The download is then checked before it is installed:
 
 ```
-==> Installing mkdocsgo 0.1.0
+==> Installing mkdocsgo 0.1.1
 ==> platform   : linux/amd64
   OK sha256 f1465c65e8d28a1c0bfb0095d949033daa7b472fe443e8154448896faed877a0
 ```

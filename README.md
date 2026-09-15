@@ -40,7 +40,7 @@ installed: [docs/getting-started.md](docs/getting-started.md).
 On a released version, pinned in one line of `project.conf`:
 
 ```ini
-MKDOCSGO_VERSION=0.1.1
+MKDOCSGO_VERSION=0.2.0
 ```
 
 `scripts/docs.sh package-cf` downloads that release and verifies its SHA-256 before
@@ -71,11 +71,32 @@ scripts/deploy-cf.sh --buildpack    # Cloud Foundry, no registry needed
 kubectl apply -f deploy/k8s/        # Kubernetes
 ```
 
+## Who may read it
+
+`mkdocsgo.yml` maps the addresses this documentation answers on to zones. Here
+the loopback addresses and the internal route are public, and the outward-facing
+ones ask for credentials - a password from a browser, a bearer token from an
+agent. Delete the file and every address is public again, which is the default.
+
+Nothing in it is a secret: a password is an Argon2id hash and a token a SHA-256
+digest. The demonstration credentials it ships with are published on purpose,
+and guard reserved example domains.
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8000/               # 200
+curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: docs.example.com' \
+  http://127.0.0.1:8000/                                                     # 401
+```
+
+How it works, and how to replace those credentials:
+[docs/guides/restricting-access.md](docs/guides/restricting-access.md).
+
 ## Layout
 
 `project.conf` answers two questions: which mkdocsgo this runs on, and what
-image this repository publishes. Everything else is an ordinary MkDocs project
-plus `scripts/` and `deploy/`.
+image this repository publishes. `mkdocsgo.yml` answers a third: which address
+gets which policy. Everything else is an ordinary MkDocs project plus
+`scripts/` and `deploy/`.
 
 The annotated tree, and the list of things that must agree with each other:
 [docs/reference/project-layout.md](docs/reference/project-layout.md).

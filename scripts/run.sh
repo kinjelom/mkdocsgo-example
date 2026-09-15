@@ -9,6 +9,10 @@
 #   http://127.0.0.1:<port>/mcp       MCP, for agents
 #   http://127.0.0.1:<port>/healthz   liveness
 #
+# The loopback addresses belong to a public zone in mkdocsgo.yml, so nothing
+# here asks for credentials. To see the restricted zone, claim its address:
+# `curl -u demo:demo -H 'Host: docs.example.com' http://127.0.0.1:<port>/`.
+#
 # This is the same binary, the same directory and the same command that
 # `cf push` stages with the binary buildpack. What you see here is what gets
 # deployed - which is not true of `mkdocs serve`.

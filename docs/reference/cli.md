@@ -30,6 +30,7 @@ so `-mode site` does not have a disabled MCP endpoint, it has none.
 | `-mode` | `site+mcp` | What to serve |
 | `-project` | `.` | Directory holding `mkdocs.yml` |
 | `-site-dir` | `<project>/site` | The built site |
+| `-config` | `<project>/mkdocsgo.yml` | Zones; absent means every address is public |
 | `-http` | *(empty)* | Address to listen on |
 | `-search-limit` | `8` | Default search results; callers may override, capped at 50 |
 | `-allow-origin` | - | Additional allowed `Origin` for `/mcp`; repeatable |
@@ -38,6 +39,8 @@ so `-mode site` does not have a disabled MCP endpoint, it has none.
 | `-version` | | Print the version and exit |
 | `-healthcheck <url>` | | GET the URL, exit 0 on 2xx, then quit. `self` means this server's own `/healthz` |
 | `-mcp-probe <url>` | | Ask an MCP endpoint for its tool list, exit 0 if it answers |
+| `-new-token` | | Mint a bearer token, print it and the line to paste, then quit |
+| `-hash-password` | | Hash a password for `mkdocsgo.yml`, then quit |
 
 ## Ports
 
@@ -92,6 +95,31 @@ Each page is also an MCP resource at `docs://<path>` serving the source
 Markdown. `-no-resources` turns that off; the tools remain, because every
 client implements tools and resource support is uneven.
 
+## Zones
+
+With an `mkdocsgo.yml` beside `mkdocs.yml`, the address a request arrived at
+decides what it needs. Without one - the default - every address is public and
+nothing below applies.
+
+| | |
+|---|---|
+| `access: public` | served to anyone, as before |
+| `access: restricted` | a browser needs HTTP Basic credentials, an agent a bearer token |
+| `access: off` | `403` to everything, retiring an address without touching DNS |
+| an address no zone claims | `403` |
+
+`/healthz` is outside every zone, because a platform probe arrives at the
+container's address rather than at a route. So is the metadata document at
+`/.well-known/oauth-protected-resource/mcp`, which a client reads in order to
+learn how to authenticate.
+
+Configuration errors stop the server rather than surfacing as a puzzling `401`
+later: a restricted zone with no principals, a plaintext password where a hash
+belongs, one host claimed twice, an unknown key.
+
+This repository's zones, and how to try them:
+[Restricting access by address](../guides/restricting-access.md).
+
 ## Origin and `/mcp`
 
 `Origin` is validated on `/mcp`. That is DNS-rebinding defence, not access
@@ -107,4 +135,6 @@ mkdocsgo -mode site+mcp -project . -http 0.0.0.0:8080 \
   -allow-origin https://agent.example.com
 ```
 
-The site itself is not origin-guarded. It is a public website.
+The site itself is not origin-guarded; whether it is public is a zone's
+business, not the `Origin` header's. The guard runs before the zone check, so a
+rebinding attempt never reaches a password hash.

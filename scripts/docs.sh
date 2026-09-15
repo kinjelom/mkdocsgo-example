@@ -79,4 +79,19 @@ case "${1:-}" in
     ;;
 esac
 
+# package-cf is the one command with something to add afterwards. The toolbox
+# assembles dist/cf from what it knows about - the binary, the site, mkdocs.yml
+# and the Markdown - and mkdocsgo.yml is newer than the toolbox release pinned
+# in project.conf, so it is staged here until that catches up. Without it a
+# buildpack deployment would serve every route publicly, which is the one way
+# this repository's zones could quietly not be in force.
+if [ "${1:-}" = "package-cf" ]; then
+  "$DOCKER" run "${args[@]}" "$TOOLBOX_IMAGE" "$@"
+  if [ -f "$REPO_ROOT/mkdocsgo.yml" ]; then
+    cp "$REPO_ROOT/mkdocsgo.yml" "$REPO_ROOT/dist/cf/mkdocsgo.yml"
+    printf '\033[32m  OK\033[0m %s\n' "dist/cf/mkdocsgo.yml"
+  fi
+  exit 0
+fi
+
 exec "$DOCKER" run "${args[@]}" "$TOOLBOX_IMAGE" "$@"

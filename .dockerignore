@@ -1,6 +1,7 @@
 # Keep the build context to what `mkdocs build` actually needs: mkdocs.yml,
 # docs/, requirements.txt - and deploy/, because documentation pages include
-# the real manifests with `--8<--` rather than restating them.
+# the real manifests with `--8<--` rather than restating them. mkdocsgo.yml
+# rides along too: the runtime stage copies it in.
 #
 # Note that a root-level pattern like *.md does not match docs/**.md: Docker
 # matches the whole path and * does not cross a /.
